@@ -1,0 +1,24 @@
+[package]
+name = "u2f"
+version = "0.1.0"
+authors = ["Flavio Oliveira <rusty@wisespace.io>"]
+
+description = "Rust FIDO U2F Library"
+license = "MIT OR Apache-2.0"
+keywords = ["authentication", "encryption", "U2F"]
+categories = ["authentication"]
+repository = "https://github.com/wisespace-io/u2f-rs"
+readme = "README.md"
+
+[badges]
+travis-ci = { repository = "wisespace-io/u2f-rs" }
+
+[lib]
+name = "u2f"
+path = "src/lib.rs"
+
+[dependencies]
+rand = "^0.3"
+base64 = "^0.5"
+chrono = "^0.4"
+secp256k1 = "0.7.1"
