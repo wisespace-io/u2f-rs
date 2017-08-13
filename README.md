@@ -10,7 +10,7 @@ Add this to your Cargo.toml
 
 ```toml
 [dependencies]
-u2f-rs = "0.1"
+u2f = "0.1"
 ```
 
 Make sure that you have read [Using a U2F library](https://developers.yubico.com/U2F/Libraries/Using_a_library.html) before continuing.

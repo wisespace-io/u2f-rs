@@ -18,7 +18,7 @@ name = "u2f"
 path = "src/lib.rs"
 
 [dependencies]
-rand = "^0.3"
+ring = "^0.11"
 base64 = "^0.5"
 chrono = "^0.4"
 secp256k1 = "0.7.1"
