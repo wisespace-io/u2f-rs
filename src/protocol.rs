@@ -1,5 +1,7 @@
 use util::*;
+use messages::*;
 
+use base64::{encode};
 use chrono::prelude::*;
 
 #[derive(Clone)]
@@ -22,7 +24,7 @@ impl U2f {
         }
     }
 
-    pub fn request(&self) -> Result<Challenge, String> {
+    pub fn request(&self) -> Result<U2fRegisterRequest, String> {
 
         let challenge = Challenge {
             challenge : generate_challenge(32)?,
@@ -30,6 +32,37 @@ impl U2f {
             app_id : self.app_id.clone()
         };
 
-        Ok(challenge)
+        let u2f_request = U2fRegisterRequest {
+            app_id : self.app_id.clone(),
+            register_requests: self.registerRequest(challenge),
+            registered_keys: self.registeredKeys() 
+        };
+
+        Ok(u2f_request)
+    }
+
+    fn registerRequest(&self, challenge: Challenge) -> Vec<RegisterRequest> {
+        let mut requests: Vec<RegisterRequest> = vec![];
+
+        let request = RegisterRequest {
+            version : U2F_V2.into(),
+            challenge: encode(&challenge.challenge)
+        };
+        requests.push(request);
+
+        requests
+    }
+
+    fn registeredKeys(&self) -> Vec<RegisteredKey> {
+        let mut keys: Vec<RegisteredKey> = vec![];
+
+        let key = RegisteredKey {
+            version : U2F_V2.into(),
+            key_handle: None,
+            app_id: self.app_id.clone(),
+        };
+        keys.push(key);
+
+        keys
     }
 }
