@@ -34,14 +34,14 @@ impl U2f {
 
         let u2f_request = U2fRegisterRequest {
             app_id : self.app_id.clone(),
-            register_requests: self.registerRequest(challenge),
-            registered_keys: self.registeredKeys() 
+            register_requests: self.register_request(challenge),
+            registered_keys: self.registered_keys() 
         };
 
         Ok(u2f_request)
     }
 
-    fn registerRequest(&self, challenge: Challenge) -> Vec<RegisterRequest> {
+    fn register_request(&self, challenge: Challenge) -> Vec<RegisterRequest> {
         let mut requests: Vec<RegisterRequest> = vec![];
 
         let request = RegisterRequest {
@@ -53,7 +53,7 @@ impl U2f {
         requests
     }
 
-    fn registeredKeys(&self) -> Vec<RegisteredKey> {
+    fn registered_keys(&self) -> Vec<RegisteredKey> {
         let mut keys: Vec<RegisteredKey> = vec![];
 
         let key = RegisteredKey {

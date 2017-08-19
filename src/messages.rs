@@ -19,19 +19,19 @@ pub struct RegisteredKey {
 }
 
 pub struct RegisterResponse {
-	version: String,
-	registration_data: String,
-	client_data: String
+    version: String,
+    registration_data: String,
+    client_data: String
 }
 
 pub struct U2fSignRequest {
-	app_id: String,
-	challenge: String,
-	registered_keys: Vec<RegisteredKey>
+    app_id: String,
+    challenge: String,
+    registered_keys: Vec<RegisteredKey>
 }
 
 pub struct SignResponse {
-	key_handle: String,
-	signature_data: String,
-	client_data: String
+    key_handle: String,
+    signature_data: String,
+    client_data: String
 }
