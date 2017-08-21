@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+<head>
+    <script type="text/javascript" src="https://demo.yubico.com/js/u2f-api.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</head>
+<body>
+
+    <h1>Rust U2F App test</h1>
+    <input type="button" value="Register a 2FA key" onClick="register()">
+    <p/>
+    <input type="button" value="Authenticate" onClick="authenticate()">
+
+    <script>
+
+        /* Get a registration request from the server
+        *  Register the key 
+        */
+        function register() {
+            $.getJSON('/api/register_request')
+            .done(function(req) {
+                u2f.register(req.appId, req.registerRequests, req.registeredKeys, postRegisteredResponse, 30); 
+            }).fail(function(response) {
+                alert('Server error: ' + response.responseText);
+            });  
+        }
+
+        /* Send the results back to server
+        *  Check if it was successful
+        */
+        function postRegisteredResponse(response) {
+            if (response.errorCode === u2f.ErrorCodes['OK']) {
+                $.post('/registerResponse', JSON.stringify(response)).success(function() {
+                    alert('Success');
+                }).fail(function(response) {
+                    alert('Server error: ' + response.responseText);
+                });
+            } else {
+                alert(response.errorMessage);
+            }
+        }
+
+        /* Get an authentication request from the server
+        *  Sign it with the key
+        */
+        function authenticate() {
+            $.getJSON('/signRequest')
+            .done(function(request) {
+            u2f.sign(req.appId, req.challenge, req.registeredKeys, postSignedResponse, 30);
+            }).fail(function(response) {
+                alert('Server error: ' + response.responseText);
+            }); 
+        }
+
+        /* Verify the results on the server  */
+        function postSignedResponse(response) {
+            if (response.errorCode === u2f.ErrorCodes['OK']) {
+                $.post('/signResponse', JSON.stringify(resp))
+                .done(function() {
+                    alert('Success');
+                }).fail(function(response) {
+                alert('Server error: ' + response.responseText);
+            }); 
+            } else {
+                alert(response.errorMessage);
+            }
+        }
+
+    </script>
+</body>
+</html>

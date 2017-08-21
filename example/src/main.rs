@@ -8,9 +8,17 @@ extern crate serde_json;
 #[macro_use] extern crate serde_derive;
 #[macro_use] extern crate rocket_contrib;
 
-use rocket_contrib::{Json, Value};
+use std::io;
 
-#[post("/register", format = "application/json")]
+use rocket_contrib::{Json, Value};
+use rocket::response::NamedFile;
+
+#[get("/")]
+fn index() -> io::Result<NamedFile> {
+    NamedFile::open("static/index.html")
+}
+
+#[get("/api/register_request", format = "application/json")]
 fn register_request() -> Json<Value> {
     Json(json!({ "status": "ok" }))
 }
@@ -25,7 +33,7 @@ fn not_found() -> Json<Value> {
 
 fn rocket() -> rocket::Rocket {
     rocket::ignite()
-        .mount("/", routes![register_request])
+        .mount("/", routes![index, register_request])
         .catch(errors![not_found])
 }
 
