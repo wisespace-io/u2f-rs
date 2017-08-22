@@ -46,7 +46,7 @@
         function authenticate() {
             $.getJSON('/signRequest')
             .done(function(request) {
-            u2f.sign(req.appId, req.challenge, req.registeredKeys, postSignedResponse, 30);
+                u2f.sign(req.appId, req.challenge, req.registeredKeys, postSignedResponse, 30);
             }).fail(function(response) {
                 alert('Server error: ' + response.responseText);
             }); 
@@ -59,8 +59,8 @@
                 .done(function() {
                     alert('Success');
                 }).fail(function(response) {
-                alert('Server error: ' + response.responseText);
-            }); 
+                    alert('Server error: ' + response.responseText);
+                }); 
             } else {
                 alert(response.errorMessage);
             }

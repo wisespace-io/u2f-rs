@@ -1,23 +1,30 @@
 // As defined by FIDO U2F Javascript API.
 // https://fidoalliance.org/specs/fido-u2f-v1.0-nfc-bt-amendment-20150514/fido-u2f-javascript-api.html#registration
 
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct U2fRegisterRequest {
     pub app_id: String,
     pub register_requests: Vec<RegisterRequest>,
     pub registered_keys: Vec<RegisteredKey>,
 }
 
+#[derive(Serialize)]
 pub struct RegisterRequest {
     pub version: String,
     pub challenge: String
 }
 
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct RegisteredKey {
     pub version: String,
     pub key_handle: Option<String>,
     pub app_id: String
 }
 
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct RegisterResponse {
     version: String,
     registration_data: String,

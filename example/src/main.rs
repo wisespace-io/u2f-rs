@@ -10,8 +10,14 @@ extern crate serde_json;
 
 use std::io;
 
+use u2f::protocol::*;
+use u2f::messages::*;
+
+use rocket::State;
 use rocket_contrib::{Json, Value};
 use rocket::response::NamedFile;
+
+static APP_ID : &'static str = "https://localhost:30443";
 
 #[get("/")]
 fn index() -> io::Result<NamedFile> {
@@ -19,8 +25,11 @@ fn index() -> io::Result<NamedFile> {
 }
 
 #[get("/api/register_request", format = "application/json")]
-fn register_request() -> Json<Value> {
-    Json(json!({ "status": "ok" }))
+fn register_request(u2f: State<U2f>) -> Json<U2fRegisterRequest> {
+    
+    // Send registration request to the browser.
+    let u2f_request = u2f.request();
+    Json(u2f_request.unwrap())
 }
 
 #[error(404)]
@@ -32,9 +41,12 @@ fn not_found() -> Json<Value> {
 }
 
 fn rocket() -> rocket::Rocket {
+    let u2f = U2f::new(APP_ID.into());
+
     rocket::ignite()
         .mount("/", routes![index, register_request])
         .catch(errors![not_found])
+        .manage(u2f)
 }
 
 fn main() {
