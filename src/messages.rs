@@ -23,12 +23,13 @@ pub struct RegisteredKey {
     pub app_id: String
 }
 
-#[derive(Serialize)]
+#[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RegisterResponse {
-    version: String,
-    registration_data: String,
-    client_data: String
+    pub registration_data: String,
+    pub version: String,
+    pub challenge: String,
+    pub client_data: String
 }
 
 pub struct U2fSignRequest {

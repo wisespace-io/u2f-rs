@@ -2,7 +2,10 @@
 <html>
 <head>
     <script type="text/javascript" src="https://demo.yubico.com/js/u2f-api.js"></script>
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert-dev.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/1.1.3/sweetalert.css">
 </head>
 <body>
 
@@ -19,9 +22,10 @@
         function register() {
             $.getJSON('/api/register_request')
             .done(function(req) {
+                showNotification("Registration");
                 u2f.register(req.appId, req.registerRequests, req.registeredKeys, postRegisteredResponse, 30); 
             }).fail(function(response) {
-                alert('Server error: ' + response.responseText);
+                sweetAlert("Registration failed", response.statusText, "error");
             });  
         }
 
@@ -29,14 +33,16 @@
         *  Check if it was successful
         */
         function postRegisteredResponse(response) {
-            if (response.errorCode === u2f.ErrorCodes['OK']) {
-                $.post('/registerResponse', JSON.stringify(response)).success(function() {
-                    alert('Success');
+            if (typeof response.errorCode === 'undefined' || response.errorCode === u2f.ErrorCodes['OK']) {
+                console.log(response);
+                postJSON('/api/register_response', response)
+                .done(function() {
+                    swal("Success!");
                 }).fail(function(response) {
-                    alert('Server error: ' + response.responseText);
+                    sweetAlert("Registration failed", response.statusText, "error");
                 });
             } else {
-                alert(response.errorMessage);
+                sweetAlert("Registration failed", (parseError(response.errorCode)), "error");
             }
         }
 
@@ -46,9 +52,10 @@
         function authenticate() {
             $.getJSON('/signRequest')
             .done(function(request) {
+                showNotification("Authentication");
                 u2f.sign(req.appId, req.challenge, req.registeredKeys, postSignedResponse, 30);
             }).fail(function(response) {
-                alert('Server error: ' + response.responseText);
+                sweetAlert("Authentication failed", response.statusText, "error");
             }); 
         }
 
@@ -57,13 +64,37 @@
             if (response.errorCode === u2f.ErrorCodes['OK']) {
                 $.post('/signResponse', JSON.stringify(resp))
                 .done(function() {
-                    alert('Success');
+                    swal("Success!");
                 }).fail(function(response) {
-                    alert('Server error: ' + response.responseText);
+                    sweetAlert("Authentication failed", response.statusText, "error");
                 }); 
             } else {
-                alert(response.errorMessage);
+                alert(parseError(response.errorCode));
             }
+        }
+      
+        postJSON = function(url, data){
+           return $.ajax({url: url, data: JSON.stringify(data), type:'POST', contentType: 'application/json'});
+        };
+
+        function parseError(errorCode) {
+            var error = "Unknown error"
+            for (name in u2f.ErrorCodes) {
+                if (u2f.ErrorCodes[name] === errorCode) {
+                    error = name;
+                    break;
+                }
+            }            
+            return error;
+        }
+
+        function showNotification(action) {
+            swal({
+                    title: action,
+                    text: "Press your key (Yubico) to proceed",
+                    timer: 3000,
+                    showConfirmButton: false
+                });            
         }
 
     </script>

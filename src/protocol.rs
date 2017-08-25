@@ -1,5 +1,6 @@
 use util::*;
 use messages::*;
+use register::*;
 
 use base64::{encode};
 use chrono::prelude::*;
@@ -9,11 +10,12 @@ pub struct U2f {
     app_id: String,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct Challenge {
-    app_id: String,
-    challenge: Vec<u8>,
-    timestamp: DateTime<Utc>,
+    pub app_id: String,
+    pub challenge: Vec<u8>,
+    pub timestamp: String,
 }
 
 impl U2f {
@@ -24,18 +26,21 @@ impl U2f {
         }
     }
 
-    pub fn request(&self) -> Result<U2fRegisterRequest, String> {
-
+    pub fn new_challenge(&self) -> Result<Challenge, String> {
         let challenge = Challenge {
             challenge : generate_challenge(32)?,
-            timestamp : Utc::now(),
+            timestamp : Utc::now().to_string(),
             app_id : self.app_id.clone()
         };
 
+        Ok(challenge)
+    }
+
+    pub fn request(&self, challenge: Challenge, registrations: Vec<Registration>) -> Result<U2fRegisterRequest, String> {
         let u2f_request = U2fRegisterRequest {
             app_id : self.app_id.clone(),
             register_requests: self.register_request(challenge),
-            registered_keys: self.registered_keys() 
+            registered_keys: self.registered_keys(registrations)
         };
 
         Ok(u2f_request)
@@ -53,15 +58,29 @@ impl U2f {
         requests
     }
 
-    fn registered_keys(&self) -> Vec<RegisteredKey> {
+    pub fn register_response(&self, challenge: Challenge, response: RegisterResponse) -> Vec<RegisterRequest> {
+        let mut requests: Vec<RegisterRequest> = vec![];
+
+        let request = RegisterRequest {
+            version : U2F_V2.into(),
+            challenge: encode(&challenge.challenge)
+        };
+        requests.push(request);
+
+        requests
+    }
+
+    fn registered_keys(&self, registrations: Vec<Registration>) -> Vec<RegisteredKey> {
         let mut keys: Vec<RegisteredKey> = vec![];
 
-        let key = RegisteredKey {
-            version : U2F_V2.into(),
-            key_handle: None,
-            app_id: self.app_id.clone(),
-        };
-        keys.push(key);
+        for registration in registrations {
+            let key = RegisteredKey {
+                version : U2F_V2.into(),
+                key_handle: Some(encode(&registration.key_handle)),
+                app_id: self.app_id.clone(),
+            };
+            keys.push(key);
+        }
 
         keys
     }

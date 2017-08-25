@@ -1,12 +1,12 @@
 
 // Single enrolment or pairing between an application and a token.
 
-#[derive(Serialize)]
+#[derive(Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct Registration {
-    key_handle: Vec<u8>,
-	pub_key: String,
+    pub key_handle: Vec<u8>,
+	pub pub_key: String,
 
 	// AttestationCert can be null for Authenticate requests.
-	attestation_cert: Option<String>,
+	pub attestation_cert: Option<String>,
 }
