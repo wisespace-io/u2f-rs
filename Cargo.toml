@@ -5,7 +5,7 @@ authors = ["Flavio Oliveira <rusty@wisespace.io>"]
 
 description = "Rust FIDO U2F Library"
 license = "MIT OR Apache-2.0"
-keywords = ["authentication", "encryption", "U2F"]
+keywords = ["authentication", "encryption", "U2F", "2fa"]
 categories = ["authentication"]
 repository = "https://github.com/wisespace-io/u2f-rs"
 readme = "README.md"

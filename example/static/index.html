@@ -50,7 +50,7 @@
         *  Sign it with the key
         */
         function authenticate() {
-            $.getJSON('/signRequest')
+            $.getJSON('/api/sign_request')
             .done(function(request) {
                 showNotification("Authentication");
                 u2f.sign(req.appId, req.challenge, req.registeredKeys, postSignedResponse, 30);
@@ -62,7 +62,7 @@
         /* Verify the results on the server  */
         function postSignedResponse(response) {
             if (response.errorCode === u2f.ErrorCodes['OK']) {
-                $.post('/signResponse', JSON.stringify(resp))
+                $.post('/api/sign_response', JSON.stringify(resp))
                 .done(function() {
                     swal("Success!");
                 }).fail(function(response) {

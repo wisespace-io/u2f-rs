@@ -1,5 +1,5 @@
 [![Build Status](https://travis-ci.org/wisespace-io/u2f-rs.png?branch=master)](https://travis-ci.org/wisespace-io/u2f-rs)
-[![Crates.io](https://img.shields.io/crates/v/u2f-rs.svg)](https://crates.io/crates/u2f-rs)
+[![Crates.io](https://img.shields.io/crates/v/u2f.svg)](https://crates.io/crates/u2f)
 
 # u2f-rs
 Rust [FIDO U2F](https://fidoalliance.org/specifications/download/) library is a simple server side implementation to register and check signatures provided by U2F clients/devices. See [U2F Technical Overview](https://developers.yubico.com/U2F/Protocol_details/Overview.html)

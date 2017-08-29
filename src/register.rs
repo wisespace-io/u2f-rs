@@ -10,3 +10,13 @@ pub struct Registration {
 	// AttestationCert can be null for Authenticate requests.
 	pub attestation_cert: Option<String>,
 }
+
+pub fn parse_registration(registration_data: Vec<u8>) -> Registration {
+    let registration = Registration {
+		key_handle: vec![],
+        pub_key: String::new(), 
+	    attestation_cert: Some(String::new()),
+    };
+
+	registration
+}
