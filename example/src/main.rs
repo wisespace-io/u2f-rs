@@ -63,9 +63,18 @@ fn register_response(mut cookies: Cookies, response: Json<RegisterResponse>, sta
     if let Some(ref cookie) = cookie {
         let challenge: Challenge = serde_json::from_str(cookie.value()).unwrap();
         let registration = state.u2f.register_response(challenge, response.into_inner());
+        match registration {
+            Ok(reg) =>  {
+                //NOTE: You should save the returned registration
+                return Json(json!({"status": "success"}));
+            },
+            Err(e) => {
+                return Json(json!({"status": "error", "reason": ""}));
+            } 
+        }       
+    } else {
+        return Json(json!({"status": "error", "reason": "Not able to recover challenge"}));
     }
-
-    Json(json!({"status": "success"}))
 }
 
 #[error(404)]

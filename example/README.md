@@ -1,4 +1,8 @@
-# Usage
+# Nightly Rust
+
+The example uses [Rocket](https://github.com/SergioBenitez/Rocket/) so it requires Nightly Rust.
+
+## Usage
 
 The certificate/private key pair used can be generated via openssl:
 
@@ -15,3 +19,9 @@ key = "private/key.pem"
 ```
 
 The certificate is self-signed. You will need to trust it directly for your browser to refer to the connection as secure.
+
+Build and open de demo app
+
+```
+https://localhost:30443
+```
