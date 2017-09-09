@@ -20,7 +20,7 @@ key = "private/key.pem"
 
 The certificate is self-signed. You will need to trust it directly for your browser to refer to the connection as secure.
 
-Build and open de demo app
+Build and open the demo app
 
 ```
 https://localhost:30443

@@ -1,6 +1,7 @@
 use util::*;
 use messages::*;
 use register::*;
+use authorization::*;
 
 use base64::{encode, decode, decode_config, Config, CharacterSet, LineWrap};
 use chrono::prelude::*;
@@ -76,13 +77,7 @@ impl U2f {
     }
 
     pub fn register_response(&self, challenge: Challenge, response: RegisterResponse) -> Result<Registration> {
-        let now: DateTime<Utc> = Utc::now();
-
-        let timestamp = challenge.timestamp.parse::<DateTime<Utc>>();
-
-	    let expiration = now.signed_duration_since(timestamp.unwrap());
-
-        if expiration > Duration::seconds(300) {
+        if expiration(challenge.timestamp) > Duration::seconds(300) {
             return Err(U2fError::ChallengeExpired);
         }
     
@@ -98,14 +93,46 @@ impl U2f {
         let mut keys: Vec<RegisteredKey> = vec![];
 
         for registration in registrations {
-            let key = RegisteredKey {
-                version : U2F_V2.into(),
-                key_handle: Some(encode(&registration.key_handle)),
-                app_id: self.app_id.clone(),
-            };
-            keys.push(key);
+            keys.push(get_registered_key(self.app_id.clone(), registration.key_handle));
         }
 
         keys
     }
+    
+    pub fn sign_request(&self, challenge: Challenge, registrations: Vec<Registration>) -> U2fSignRequest {
+        let mut keys: Vec<RegisteredKey> = vec![];
+
+        for registration in registrations {
+            keys.push(get_registered_key(self.app_id.clone(), registration.key_handle));
+        }
+
+        let signed_request = U2fSignRequest {
+            app_id : self.app_id.clone(),
+            challenge: encode(challenge.challenge.as_bytes()),
+            registered_keys: keys
+        };
+
+        signed_request
+    }  
+
+    pub fn sign_response(&self, challenge: Challenge, reg: Registration, sign_resp: SignResponse) -> Result<u32> {
+        if expiration(challenge.timestamp) > Duration::seconds(300) {
+            return Err(U2fError::ChallengeExpired);
+        }
+
+        if sign_resp.key_handle != encode(&reg.key_handle[..]) {
+            return Err(U2fError::WrongKeyHandler);
+        }
+
+        decode(&sign_resp.client_data).map_err(|_e| U2fError::InvalidClientData)?;
+        decode(&sign_resp.signature_data).map_err(|_e| U2fError::InvalidSignatureData)?;
+
+        let config = Config::new(CharacterSet::UrlSafe, false, false, LineWrap::NoWrap);
+        let client_data: Vec<u8> = decode_config(&sign_resp.client_data[..], config).unwrap();
+        let sign_data: Vec<u8> = decode_config(&sign_resp.signature_data[..], config).unwrap();
+        
+        let auth = parse_sign_response(self.app_id.clone(), client_data.clone(), reg.pub_key, sign_data.clone());
+
+        Ok(auth.unwrap().counter)
+    }       
 }

@@ -7,7 +7,11 @@ pub enum U2fError {
     BadSignature,
     RandomSecureBytesError,
     InvalidReservedByte,
-    ChallengeExpired
+    ChallengeExpired,
+    WrongKeyHandler,
+    InvalidClientData,
+    InvalidSignatureData,
+    InvalidUserPresenceByte
 }
 
 impl fmt::Display for U2fError {
@@ -17,7 +21,11 @@ impl fmt::Display for U2fError {
             U2fError::BadSignature => write!(f, "Not able to verify signature"),
             U2fError::RandomSecureBytesError => write!(f, "Not able to generate random bytes"),
             U2fError::InvalidReservedByte => write!(f, "Invalid Reserved Byte"),
-            U2fError::ChallengeExpired => write!(f, "ChallengeExpired"),
+            U2fError::ChallengeExpired => write!(f, "Challenge Expired"),
+            U2fError::WrongKeyHandler => write!(f, "Wrong Key Handler"),
+            U2fError::InvalidClientData => write!(f, "Invalid Client Data"),
+            U2fError::InvalidSignatureData => write!(f, "Invalid Signature Data"),
+            U2fError::InvalidUserPresenceByte => write!(f, "Invalid User Presence Byte"),
         }
     }
 }
@@ -30,6 +38,10 @@ impl error::Error for U2fError {
             U2fError::RandomSecureBytesError => "Error attempting to generate random bytes",
             U2fError::InvalidReservedByte => "Error attempting to parse Reserved Byte",
             U2fError::ChallengeExpired => "Challenge has expired",
+            U2fError::WrongKeyHandler => "Wrong Key Handler",
+            U2fError::InvalidClientData => "Invalid Client Data",
+            U2fError::InvalidSignatureData => "Invalid Signature Data",
+            U2fError::InvalidUserPresenceByte => "Invalid User Presence Byte",
         }
     }
 
@@ -39,7 +51,11 @@ impl error::Error for U2fError {
             U2fError::BadSignature => None,
             U2fError::RandomSecureBytesError => None,
             U2fError::InvalidReservedByte => None,
-            U2fError::ChallengeExpired => None,            
+            U2fError::ChallengeExpired => None,
+            U2fError::WrongKeyHandler => None,
+            U2fError::InvalidClientData => None,
+            U2fError::InvalidSignatureData => None,
+            U2fError::InvalidUserPresenceByte => None,            
         }
     }
 }

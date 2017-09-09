@@ -18,3 +18,4 @@ pub mod u2ferror;
 pub mod register;
 pub mod messages;
 pub mod protocol;
+pub mod authorization;
