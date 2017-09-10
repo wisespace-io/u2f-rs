@@ -2,7 +2,6 @@ use chrono::prelude::*;
 use time::Duration;
 use ring::rand::{SecureRandom, SystemRandom};
 use bytes::{Bytes};
-
 use u2ferror::U2fError;
 
 /// The `Result` type used in this crate.

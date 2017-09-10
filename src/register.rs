@@ -4,7 +4,6 @@ use ring::{error, signature};
 use untrusted::Input;
 use byteorder::{ByteOrder, BigEndian};
 use crypto_hash::{Algorithm, hex_digest};
-
 use webpki::trust_anchor_util;
 
 use util::*;
