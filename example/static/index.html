@@ -25,7 +25,7 @@
                 showNotification("Registration");
                 u2f.register(req.appId, req.registerRequests, req.registeredKeys, postRegisteredResponse, 30); 
             }).fail(function(response) {
-                sweetAlert("Registration failed", response.statusText, "error");
+                sweetAlert("Registration failed", response.responseText, "error");
             });  
         }
 
@@ -39,7 +39,7 @@
                 .done(function() {
                     swal("Success!");
                 }).fail(function(response) {
-                    sweetAlert("Registration failed", response.statusText, "error");
+                    sweetAlert("Registration failed", response.responseText, "error");
                 });
             } else {
                 sweetAlert("Registration failed", (parseError(response.errorCode)), "error");
@@ -51,22 +51,22 @@
         */
         function authenticate() {
             $.getJSON('/api/sign_request')
-            .done(function(request) {
-                showNotification("Authentication");
+            .done(function(req) {
+                console.log(req);
                 u2f.sign(req.appId, req.challenge, req.registeredKeys, postSignedResponse, 30);
             }).fail(function(response) {
-                sweetAlert("Authentication failed", response.statusText, "error");
+                sweetAlert("Authentication failed", response.responseText, "error");
             }); 
         }
 
         /* Verify the results on the server  */
         function postSignedResponse(response) {
             if (response.errorCode === u2f.ErrorCodes['OK']) {
-                $.post('/api/sign_response', JSON.stringify(resp))
+                $.post('/api/sign_response', JSON.stringify(response))
                 .done(function() {
-                    swal("Success!");
+                    swal("Authenticated!");
                 }).fail(function(response) {
-                    sweetAlert("Authentication failed", response.statusText, "error");
+                    sweetAlert("Authentication failed", response.responseText, "error");
                 }); 
             } else {
                 alert(parseError(response.errorCode));

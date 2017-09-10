@@ -9,8 +9,9 @@ extern crate bytes;
 extern crate byteorder;
 extern crate chrono;
 extern crate base64;
+extern crate webpki;
 extern crate untrusted;
-extern crate boringauth;
+extern crate crypto_hash;
 
 mod util;
 
@@ -18,3 +19,4 @@ pub mod u2ferror;
 pub mod register;
 pub mod messages;
 pub mod protocol;
+pub mod authorization;

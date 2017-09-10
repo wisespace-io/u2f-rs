@@ -32,14 +32,18 @@ pub struct RegisterResponse {
     pub client_data: String
 }
 
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct U2fSignRequest {
-    app_id: String,
-    challenge: String,
-    registered_keys: Vec<RegisteredKey>
+    pub app_id: String,
+    pub challenge: String,
+    pub registered_keys: Vec<RegisteredKey>
 }
 
+#[derive(Clone, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct SignResponse {
-    key_handle: String,
-    signature_data: String,
-    client_data: String
+    pub key_handle: String,
+    pub signature_data: String,
+    pub client_data: String
 }
