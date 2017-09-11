@@ -3,7 +3,7 @@ use messages::*;
 use register::*;
 use authorization::*;
 
-use base64::{encode, decode, decode_config, Config, CharacterSet, LineWrap};
+use base64::{encode, decode_config, Config, CharacterSet, LineWrap};
 use chrono::prelude::*;
 use time::Duration;
 use u2ferror::U2fError;
@@ -120,19 +120,18 @@ impl U2f {
             return Err(U2fError::ChallengeExpired);
         }
 
-        if sign_resp.key_handle != encode(&reg.key_handle[..]) {
+        if sign_resp.key_handle != get_encoded(&reg.key_handle[..]) {            
             return Err(U2fError::WrongKeyHandler);
         }
 
-        decode(&sign_resp.client_data).map_err(|_e| U2fError::InvalidClientData)?;
-        decode(&sign_resp.signature_data).map_err(|_e| U2fError::InvalidSignatureData)?;
-
         let config = Config::new(CharacterSet::UrlSafe, true, false, LineWrap::NoWrap);
-        let client_data: Vec<u8> = decode_config(&sign_resp.client_data[..], config).unwrap();
-        let sign_data: Vec<u8> = decode_config(&sign_resp.signature_data[..], config).unwrap();
-        
-        let auth = parse_sign_response(self.app_id.clone(), client_data.clone(), reg.pub_key, sign_data.clone());
+        let client_data: Vec<u8> = decode_config(&sign_resp.client_data[..], config).map_err(|_e| U2fError::InvalidClientData)?;
+        let sign_data: Vec<u8> = decode_config(&sign_resp.signature_data[..], config).map_err(|_e| U2fError::InvalidSignatureData)?;
 
+        let cert = reg.attestation_cert.unwrap();
+
+        let auth = parse_sign_response(self.app_id.clone(), client_data.clone(), cert, sign_data.clone());
+        
         Ok(auth.unwrap().counter)
     }       
 }

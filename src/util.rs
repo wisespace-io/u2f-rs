@@ -2,6 +2,7 @@ use chrono::prelude::*;
 use time::Duration;
 use ring::rand::{SecureRandom, SystemRandom};
 use bytes::{Bytes};
+use base64::{encode_config, Config, CharacterSet, LineWrap};
 use u2ferror::U2fError;
 
 /// The `Result` type used in this crate.
@@ -57,4 +58,12 @@ pub fn asn_length(mem: Bytes) -> Result<usize> {
     }
 
     Ok(length + 2) // Add the 2 initial bytes: type and length.
+}
+
+pub fn get_encoded(data: &[u8]) -> String {
+    let config = Config::new(CharacterSet::UrlSafe, true, false, LineWrap::NoWrap);
+
+    let encoded: String = encode_config(data, config);
+
+    encoded.trim_right_matches('=').to_string()
 }

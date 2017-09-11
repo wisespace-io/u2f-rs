@@ -11,7 +11,6 @@ extern crate chrono;
 extern crate base64;
 extern crate webpki;
 extern crate untrusted;
-extern crate crypto_hash;
 
 mod util;
 

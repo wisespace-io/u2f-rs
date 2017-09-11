@@ -1,8 +1,8 @@
 use bytes::{Bytes, Buf, BufMut, BigEndian};
 use std::io::Cursor;
-use ring::{error, signature};
+use ring::{digest};
 use untrusted::Input;
-use crypto_hash::{Algorithm, hex_digest};
+use webpki::{SignatureAlgorithm, EndEntityCert, ECDSA_P256_SHA256};
 
 use util::*;
 use u2ferror::U2fError;
@@ -17,32 +17,43 @@ pub struct Authorization {
     pub user_presence: bool,
 }
 
-pub fn parse_sign_response(app_id: String, client_data: Vec<u8>, pub_key: Vec<u8>, sign_data: Vec<u8>) -> Result<Authorization> {    
-    
+pub fn parse_sign_response(app_id: String, client_data: Vec<u8>, attestation_certificate: Vec<u8>, sign_data: Vec<u8>) -> Result<Authorization> { 
     if get_user_presence(&sign_data[..]) != 1 {
         return Err(U2fError::InvalidUserPresenceByte);
     }    
     
     //Start parsing ... 
     let mut mem = Bytes::from(sign_data);
-    let _ = mem.split_to(1); // advance the user presence byte.
+    let user_presence_flag = mem.split_to(1);
     let counter = mem.split_to(4);
-    let signature_len = asn_length(mem.clone()).unwrap();
-    let signature = mem.split_to(signature_len as usize);
+    
+    let raw_data = mem.clone();
+    
+    let sig_len = asn_length(mem.clone()).unwrap();
+    let signature = mem.split_to(sig_len);
 
-    let app_id_hash = hex_digest(Algorithm::SHA256, &app_id.into_bytes());
-    let client_data_hash = hex_digest(Algorithm::SHA256, &client_data);
+    // Let's build the msg to verify the signature
+    let app_id_hash = digest::digest(&digest::SHA256, &app_id.into_bytes());
+    let client_data_hash = digest::digest(&digest::SHA256, &client_data[..]);
 
-    let mut sign_base = vec![];
-    sign_base.put(app_id_hash);
-    sign_base.put(client_data_hash);
-    sign_base.put(counter.clone());  
+    let mut msg = vec![];
+    msg.put(app_id_hash.as_ref());
+    msg.put(user_presence_flag.clone()); 
+    msg.put(raw_data.clone());  
+    msg.put(client_data_hash.as_ref());
 
-    let input_pub_key = Input::from(&pub_key[..]);
-    let input_sign = Input::from(&signature[..]);
-    let input_sign_base = Input::from(&sign_base[..]);
-    signature::verify(&signature::ECDSA_P256_SHA256_FIXED, input_pub_key, input_sign_base, input_sign)
-        .map_err(|error::Unspecified| U2fError::BadSignature)?;
+    let msg_hash = digest::digest(&digest::SHA256, &msg);
+
+    let input_sig = Input::from(&signature[..]);
+    let input_msg = Input::from(msg_hash.as_ref());
+
+    // The signature is to be verified by the relying party using the public key certified
+    // in the attestation certificate.
+    let cert = EndEntityCert::from(Input::from(&attestation_certificate[..]))
+        .map_err(|_e| U2fError::BadCertificate)?;
+
+    let algo : &[&SignatureAlgorithm] = &[&ECDSA_P256_SHA256];
+    cert.verify_signature(algo[0], input_msg, input_sig).map_err(|_e| U2fError::BadSignature)?;
 
     let authorization = Authorization {
         counter: get_counter(counter),

@@ -52,7 +52,7 @@
         function authenticate() {
             $.getJSON('/api/sign_request')
             .done(function(req) {
-                console.log(req);
+                showNotification("Authentication");
                 u2f.sign(req.appId, req.challenge, req.registeredKeys, postSignedResponse, 30);
             }).fail(function(response) {
                 sweetAlert("Authentication failed", response.responseText, "error");
@@ -61,15 +61,16 @@
 
         /* Verify the results on the server  */
         function postSignedResponse(response) {
-            if (response.errorCode === u2f.ErrorCodes['OK']) {
-                $.post('/api/sign_response', JSON.stringify(response))
+            if (typeof response.errorCode === 'undefined' || response.errorCode === u2f.ErrorCodes['OK']) {
+                console.log(response);
+                postJSON('/api/sign_response', response)
                 .done(function() {
                     swal("Authenticated!");
                 }).fail(function(response) {
                     sweetAlert("Authentication failed", response.responseText, "error");
                 }); 
             } else {
-                alert(parseError(response.errorCode));
+                sweetAlert("Authentication failed", (parseError(response.errorCode)), "error");
             }
         }
       

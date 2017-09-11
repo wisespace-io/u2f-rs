@@ -11,7 +11,9 @@ pub enum U2fError {
     WrongKeyHandler,
     InvalidClientData,
     InvalidSignatureData,
-    InvalidUserPresenceByte
+    InvalidUserPresenceByte,
+    BadCertificate,
+    NotTrustedAnchor
 }
 
 impl fmt::Display for U2fError {
@@ -26,6 +28,8 @@ impl fmt::Display for U2fError {
             U2fError::InvalidClientData => write!(f, "Invalid Client Data"),
             U2fError::InvalidSignatureData => write!(f, "Invalid Signature Data"),
             U2fError::InvalidUserPresenceByte => write!(f, "Invalid User Presence Byte"),
+            U2fError::BadCertificate => write!(f, "Failed to parse certificate"),
+            U2fError::NotTrustedAnchor => write!(f, "Not Trusted Anchor"),
         }
     }
 }
@@ -42,6 +46,8 @@ impl error::Error for U2fError {
             U2fError::InvalidClientData => "Invalid Client Data",
             U2fError::InvalidSignatureData => "Invalid Signature Data",
             U2fError::InvalidUserPresenceByte => "Invalid User Presence Byte",
+            U2fError::BadCertificate => "Failed to parse certificate",
+            U2fError::NotTrustedAnchor => "Not Trusted Anchor",
         }
     }
 
@@ -55,7 +61,9 @@ impl error::Error for U2fError {
             U2fError::WrongKeyHandler => None,
             U2fError::InvalidClientData => None,
             U2fError::InvalidSignatureData => None,
-            U2fError::InvalidUserPresenceByte => None,            
+            U2fError::InvalidUserPresenceByte => None,  
+            U2fError::BadCertificate => None,
+            U2fError::NotTrustedAnchor => None,
         }
     }
 }
