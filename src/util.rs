@@ -52,10 +52,6 @@ pub fn asn_length(mem: Bytes) -> Result<usize> {
     }
  
     length = length + (numbem_of_bytes as usize);
-    
-    if length < 128 {
-        return Err(U2fError::Asm1DecoderError);
-    }
 
     Ok(length + 2) // Add the 2 initial bytes: type and length.
 }

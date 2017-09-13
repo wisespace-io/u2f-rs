@@ -1,6 +1,6 @@
 [package]
 name = "u2f"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Flavio Oliveira <rusty@wisespace.io>"]
 
 description = "Rust FIDO U2F Library"

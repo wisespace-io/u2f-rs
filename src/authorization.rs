@@ -27,8 +27,6 @@ pub fn parse_sign_response(app_id: String, client_data: Vec<u8>, attestation_cer
     let user_presence_flag = mem.split_to(1);
     let counter = mem.split_to(4);
     
-    let raw_data = mem.clone();
-    
     let sig_len = asn_length(mem.clone()).unwrap();
     let signature = mem.split_to(sig_len);
 
@@ -39,13 +37,11 @@ pub fn parse_sign_response(app_id: String, client_data: Vec<u8>, attestation_cer
     let mut msg = vec![];
     msg.put(app_id_hash.as_ref());
     msg.put(user_presence_flag.clone()); 
-    msg.put(raw_data.clone());  
+    msg.put(counter.clone());  
     msg.put(client_data_hash.as_ref());
 
-    let msg_hash = digest::digest(&digest::SHA256, &msg);
-
     let input_sig = Input::from(&signature[..]);
-    let input_msg = Input::from(msg_hash.as_ref());
+    let input_msg = Input::from(msg.as_ref());
 
     // The signature is to be verified by the relying party using the public key certified
     // in the attestation certificate.
