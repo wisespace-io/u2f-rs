@@ -115,7 +115,7 @@ impl U2f {
         signed_request
     }  
 
-    pub fn sign_response(&self, challenge: Challenge, reg: Registration, sign_resp: SignResponse) -> Result<u32> {
+    pub fn sign_response(&self, challenge: Challenge, reg: Registration, sign_resp: SignResponse, counter: u32) -> Result<u32> {
         if expiration(challenge.timestamp) > Duration::seconds(300) {
             return Err(U2fError::ChallengeExpired);
         }
@@ -128,10 +128,22 @@ impl U2f {
         let client_data: Vec<u8> = decode_config(&sign_resp.client_data[..], config).map_err(|_e| U2fError::InvalidClientData)?;
         let sign_data: Vec<u8> = decode_config(&sign_resp.signature_data[..], config).map_err(|_e| U2fError::InvalidSignatureData)?;
 
-        let cert = reg.attestation_cert.unwrap();
+        let cert = reg.pub_key;
 
         let auth = parse_sign_response(self.app_id.clone(), client_data.clone(), cert, sign_data.clone());
-        
-        Ok(auth.unwrap().counter)
-    }       
+
+        match auth {
+            Ok(ref res) => {
+                // CounterTooLow is raised when the counter value received from the device is
+                // lower than last stored counter value.
+                if res.counter < counter {
+                    return Err(U2fError::CounterTooLow);
+                }
+                else {
+                    return Ok(res.counter);
+                }
+            },
+                Err(e) => return Err(e),
+            }
+        }       
 }

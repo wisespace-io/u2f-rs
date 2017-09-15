@@ -13,7 +13,8 @@ pub enum U2fError {
     InvalidSignatureData,
     InvalidUserPresenceByte,
     BadCertificate,
-    NotTrustedAnchor
+    NotTrustedAnchor,
+    CounterTooLow
 }
 
 impl fmt::Display for U2fError {
@@ -30,6 +31,7 @@ impl fmt::Display for U2fError {
             U2fError::InvalidUserPresenceByte => write!(f, "Invalid User Presence Byte"),
             U2fError::BadCertificate => write!(f, "Failed to parse certificate"),
             U2fError::NotTrustedAnchor => write!(f, "Not Trusted Anchor"),
+            U2fError::CounterTooLow => write!(f, "Counter too low"),
         }
     }
 }
@@ -48,6 +50,7 @@ impl error::Error for U2fError {
             U2fError::InvalidUserPresenceByte => "Invalid User Presence Byte",
             U2fError::BadCertificate => "Failed to parse certificate",
             U2fError::NotTrustedAnchor => "Not Trusted Anchor",
+            U2fError::CounterTooLow => "Counter too low",            
         }
     }
 
@@ -64,6 +67,7 @@ impl error::Error for U2fError {
             U2fError::InvalidUserPresenceByte => None,  
             U2fError::BadCertificate => None,
             U2fError::NotTrustedAnchor => None,
+            U2fError::CounterTooLow => None,
         }
     }
 }

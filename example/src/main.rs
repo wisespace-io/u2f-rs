@@ -104,10 +104,12 @@ fn sign_response(mut cookies: Cookies, response: Json<SignResponse>, state: Stat
         let registrations = REGISTRATIONS.lock().unwrap().clone();
         let sign_resp = response.into_inner();
 
-        for registration in registrations {
-            let signed_response = state.u2f.sign_response(challenge.clone(), registration, sign_resp.clone());
-            match signed_response {
-                Ok(_signed) =>  {
+        let mut _counter: u32 = 0;
+        for registration in registrations {            
+            let response = state.u2f.sign_response(challenge.clone(), registration, sign_resp.clone(), _counter);
+            match response {
+                Ok(new_counter) =>  {
+                    _counter = new_counter;
                     return Ok(Json(json!({"status": "success"})));
                 },
                 Err(_e) => {
