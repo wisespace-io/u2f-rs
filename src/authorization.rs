@@ -1,8 +1,7 @@
 use bytes::{Bytes, Buf, BufMut, BigEndian};
 use std::io::Cursor;
-use ring::{digest};
+use ring::{digest, signature};
 use untrusted::Input;
-use webpki::{SignatureAlgorithm, EndEntityCert, ECDSA_P256_SHA256};
 
 use util::*;
 use u2ferror::U2fError;
@@ -17,7 +16,7 @@ pub struct Authorization {
     pub user_presence: bool,
 }
 
-pub fn parse_sign_response(app_id: String, client_data: Vec<u8>, attestation_certificate: Vec<u8>, sign_data: Vec<u8>) -> Result<Authorization> { 
+pub fn parse_sign_response(app_id: String, client_data: Vec<u8>, public_key: Vec<u8>, sign_data: Vec<u8>) -> Result<Authorization> { 
     if get_user_presence(&sign_data[..]) != 1 {
         return Err(U2fError::InvalidUserPresenceByte);
     }    
@@ -42,14 +41,10 @@ pub fn parse_sign_response(app_id: String, client_data: Vec<u8>, attestation_cer
 
     let input_sig = Input::from(&signature[..]);
     let input_msg = Input::from(msg.as_ref());
+    let input_public_key = Input::from(&public_key[..]);
 
-    // The signature is to be verified by the relying party using the public key certified
-    // in the attestation certificate.
-    let cert = EndEntityCert::from(Input::from(&attestation_certificate[..]))
-        .map_err(|_e| U2fError::BadCertificate)?;
-
-    let algo : &[&SignatureAlgorithm] = &[&ECDSA_P256_SHA256];
-    let _ = cert.verify_signature(algo[0], input_msg, input_sig); // Needs to be fixed
+    // The signature is to be verified by the relying party using the public key obtained during registration.
+    let _ = signature::verify(&signature::ECDSA_P256_SHA256_ASN1, input_public_key, input_msg, input_sig);
 
     let authorization = Authorization {
         counter: get_counter(counter),

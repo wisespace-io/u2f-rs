@@ -128,9 +128,9 @@ impl U2f {
         let client_data: Vec<u8> = decode_config(&sign_resp.client_data[..], config).map_err(|_e| U2fError::InvalidClientData)?;
         let sign_data: Vec<u8> = decode_config(&sign_resp.signature_data[..], config).map_err(|_e| U2fError::InvalidSignatureData)?;
 
-        let cert = reg.pub_key;
+        let public_key = reg.pub_key;
 
-        let auth = parse_sign_response(self.app_id.clone(), client_data.clone(), cert, sign_data.clone());
+        let auth = parse_sign_response(self.app_id.clone(), client_data.clone(), public_key, sign_data.clone());
 
         match auth {
             Ok(ref res) => {
