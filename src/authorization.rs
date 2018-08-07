@@ -1,4 +1,4 @@
-use bytes::{Bytes, Buf, BufMut, BigEndian};
+use bytes::{Bytes, Buf, BufMut};
 use std::io::Cursor;
 use ring::{digest, signature};
 use untrusted::Input;
@@ -61,5 +61,5 @@ fn get_user_presence(user_presence: &[u8]) -> u8 {
 
 fn get_counter(counter: Bytes) -> u32 {
     let mut buf = Cursor::new(&counter[..]);
-    buf.get_u32::<BigEndian>()
+    buf.get_u32_be()
 }
