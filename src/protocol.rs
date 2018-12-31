@@ -1,12 +1,12 @@
-use util::*;
-use messages::*;
-use register::*;
-use authorization::*;
+use crate::util::*;
+use crate::messages::*;
+use crate::register::*;
+use crate::authorization::*;
 
 use base64::{encode, decode_config, Config, CharacterSet, LineWrap};
 use chrono::prelude::*;
 use time::Duration;
-use u2ferror::U2fError;
+use crate::u2ferror::U2fError;
 
 type Result<T> = ::std::result::Result<T, U2fError>;
 

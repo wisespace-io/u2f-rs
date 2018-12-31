@@ -3,8 +3,8 @@ use std::io::Cursor;
 use ring::{digest, signature};
 use untrusted::Input;
 
-use util::*;
-use u2ferror::U2fError;
+use crate::util::*;
+use crate::u2ferror::U2fError;
 
 /// The `Result` type used in this crate.
 type Result<T> = ::std::result::Result<T, U2fError>;

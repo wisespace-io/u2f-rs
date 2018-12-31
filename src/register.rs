@@ -4,9 +4,9 @@ use untrusted::Input;
 use byteorder::{ByteOrder, BigEndian};
 use webpki::{SignatureAlgorithm, trust_anchor_util, EndEntityCert, ECDSA_P256_SHA256};
 
-use util::*;
-use messages::RegisteredKey;
-use u2ferror::U2fError;
+use crate::util::*;
+use crate::messages::RegisteredKey;
+use crate::u2ferror::U2fError;
 
 /// The `Result` type used in this crate.
 type Result<T> = ::std::result::Result<T, U2fError>;

@@ -2,6 +2,7 @@
 name = "u2f-app"
 version = "0.1.0"
 authors = ["Flavio Oliveira <flavio@wisespace.io>"]
+edition = "2018"
 
 [dependencies]
 u2f = { path = "../" }

@@ -1,7 +1,7 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
 extern crate u2f;
-#[macro_use] extern crate rocket;
+extern crate rocket;
 extern crate serde_json;
 
 #[macro_use] extern crate lazy_static;
@@ -13,7 +13,7 @@ use u2f::protocol::*;
 use u2f::messages::*;
 use u2f::register::*;
 
-use rocket::State;
+use rocket::{State, catch, catchers, get, post, routes};
 use rocket_contrib::json;
 use rocket_contrib::json::{Json, JsonValue};
 use rocket::response::status::NotFound;
