@@ -1,12 +1,11 @@
-#![feature(plugin, custom_derive)]
-#![plugin(rocket_codegen)]
+#![feature(proc_macro_hygiene, decl_macro)]
 
 extern crate u2f;
-extern crate rocket;
+#[macro_use] extern crate rocket;
 extern crate serde_json;
 
 #[macro_use] extern crate lazy_static;
-#[macro_use] extern crate rocket_contrib;
+extern crate rocket_contrib;
 
 use std::io;
 
@@ -15,7 +14,8 @@ use u2f::messages::*;
 use u2f::register::*;
 
 use rocket::State;
-use rocket_contrib::{Json, Value};
+use rocket_contrib::json;
+use rocket_contrib::json::{Json, JsonValue};
 use rocket::response::status::NotFound;
 use rocket::response::NamedFile;
 use rocket::http::{Cookie, Cookies};
@@ -57,7 +57,7 @@ fn register_request(mut cookies: Cookies, state: State<U2fClient>) -> Json<U2fRe
 }
 
 #[post("/api/register_response", format = "application/json", data = "<response>")]
-fn register_response(mut cookies: Cookies, response: Json<RegisterResponse>, state: State<U2fClient>) -> Result<Json<Value>, NotFound<String>> {
+fn register_response(mut cookies: Cookies, response: Json<RegisterResponse>, state: State<U2fClient>) -> Result<JsonValue, NotFound<String>> {
     if response.challenge.is_empty() {
         return Err(NotFound(format!("Challenge is missing")));
     }
@@ -71,12 +71,12 @@ fn register_response(mut cookies: Cookies, response: Json<RegisterResponse>, sta
             Ok(reg) =>  {
                 REGISTRATIONS.lock().unwrap().push(reg);
                 cookies.remove_private(Cookie::named("challenge"));
-                return Ok(Json(json!({"status": "success"})));
+                return Ok(json!({"status": "success"}));
             },
             Err(e) => {
                 return Err(NotFound(format!("{:?}", e.description())));
-            } 
-        }       
+            }
+        }
     } else {
         return Err(NotFound(format!("Not able to recover challenge")));
     }
@@ -91,12 +91,12 @@ fn sign_request(mut cookies: Cookies, state: State<U2fClient>) -> Json<U2fSignRe
     cookies.add_private(Cookie::new("challenge", challenge_str.unwrap()));
 
     let signed_request = state.u2f.sign_request(challenge, REGISTRATIONS.lock().unwrap().clone());
-    
+
     return Json(signed_request);
 }
 
 #[post("/api/sign_response", format = "application/json", data = "<response>")]
-fn sign_response(mut cookies: Cookies, response: Json<SignResponse>, state: State<U2fClient>) -> Result<Json<Value>, NotFound<String>> {
+fn sign_response(mut cookies: Cookies, response: Json<SignResponse>, state: State<U2fClient>) -> Result<JsonValue, NotFound<String>> {
     let cookie = cookies.get_private("challenge");
     if let Some(ref cookie) = cookie {
         let challenge: Challenge = serde_json::from_str(cookie.value()).unwrap();
@@ -105,30 +105,30 @@ fn sign_response(mut cookies: Cookies, response: Json<SignResponse>, state: Stat
         let sign_resp = response.into_inner();
 
         let mut _counter: u32 = 0;
-        for registration in registrations {            
+        for registration in registrations {
             let response = state.u2f.sign_response(challenge.clone(), registration, sign_resp.clone(), _counter);
             match response {
                 Ok(new_counter) =>  {
                     _counter = new_counter;
-                    return Ok(Json(json!({"status": "success"})));
+                    return Ok(json!({"status": "success"}));
                 },
                 Err(_e) => {
                     break;
                 } 
-            }             
+            }
         }
-        return Err(NotFound(format!("error verifying response")));         
+        return Err(NotFound(format!("error verifying response")));
     } else {
         return Err(NotFound(format!("Not able to recover challenge")));
     }
 }
 
-#[error(404)]
-fn not_found() -> Json<Value> {
-    Json(json!({
+#[catch(404)]
+fn not_found() -> JsonValue {
+    json!({
         "status": "error",
         "reason": "Resource was not found."
-    }))
+    })
 }
 
 fn rocket() -> rocket::Rocket {
@@ -138,7 +138,7 @@ fn rocket() -> rocket::Rocket {
 
     rocket::ignite()
         .mount("/", routes![index, register_request, register_response, sign_request, sign_response])
-        .catch(errors![not_found])
+        .register(catchers![not_found])
         .manage(u2f_client)
 }
 
