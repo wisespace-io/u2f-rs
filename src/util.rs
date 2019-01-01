@@ -3,7 +3,7 @@ use time::Duration;
 use ring::rand::{SecureRandom, SystemRandom};
 use bytes::{Bytes};
 use base64::{encode_config, Config, CharacterSet, LineWrap};
-use u2ferror::U2fError;
+use crate::u2ferror::U2fError;
 
 /// The `Result` type used in this crate.
 type Result<T> = ::std::result::Result<T, U2fError>;
