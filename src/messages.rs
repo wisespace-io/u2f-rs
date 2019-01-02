@@ -28,7 +28,6 @@ pub struct RegisteredKey {
 pub struct RegisterResponse {
     pub registration_data: String,
     pub version: String,
-    pub challenge: String,
     pub client_data: String
 }
 
