@@ -16,7 +16,9 @@ u2f = "0.1"
 
 Make sure that you have read [Using a U2F library](https://developers.yubico.com/U2F/Libraries/Using_a_library.html) before continuing.
 
-See provided [example](https://github.com/wisespace-io/u2f-rs/tree/master/example) 
+See provided [example](https://github.com/wisespace-io/u2f-rs/tree/master/example)
+
+
 
 ## License
 

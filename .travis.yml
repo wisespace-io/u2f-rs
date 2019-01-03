@@ -1,5 +1,13 @@
 language: rust
-rust:
-    - nightly
-    - stable
 sudo: false
+dist: trusty
+rust:
+  - stable
+  - nightly
+
+cache:
+  cargo: true
+
+matrix:
+  allow_failures:
+   - rust: nightly
