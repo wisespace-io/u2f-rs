@@ -58,9 +58,6 @@ fn register_request(mut cookies: Cookies, state: State<U2fClient>) -> Json<U2fRe
 
 #[post("/api/register_response", format = "application/json", data = "<response>")]
 fn register_response(mut cookies: Cookies, response: Json<RegisterResponse>, state: State<U2fClient>) -> Result<JsonValue, NotFound<String>> {
-    if response.challenge.is_empty() {
-        return Err(NotFound(format!("Challenge is missing")));
-    }
 
     let cookie = cookies.get_private("challenge");
 
@@ -114,7 +111,7 @@ fn sign_response(mut cookies: Cookies, response: Json<SignResponse>, state: Stat
                 },
                 Err(_e) => {
                     break;
-                } 
+                }
             }
         }
         return Err(NotFound(format!("error verifying response")));
