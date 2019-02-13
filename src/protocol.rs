@@ -3,7 +3,7 @@ use crate::messages::*;
 use crate::register::*;
 use crate::authorization::*;
 
-use base64::{encode, decode_config, Config, CharacterSet, LineWrap};
+use base64::{encode, decode_config, Config, CharacterSet};
 use chrono::prelude::*;
 use time::Duration;
 use crate::u2ferror::U2fError;
@@ -81,7 +81,7 @@ impl U2f {
             return Err(U2fError::ChallengeExpired);
         }
     
-        let config = Config::new(CharacterSet::UrlSafe, true, false, LineWrap::NoWrap);
+        let config = Config::new(CharacterSet::UrlSafe, true);
 
         let registration_data: Vec<u8> = decode_config(&response.registration_data[..], config).unwrap();
         let client_data: Vec<u8> = decode_config(&response.client_data[..], config).unwrap();
@@ -124,7 +124,7 @@ impl U2f {
             return Err(U2fError::WrongKeyHandler);
         }
 
-        let config = Config::new(CharacterSet::UrlSafe, true, false, LineWrap::NoWrap);
+        let config = Config::new(CharacterSet::UrlSafe, true);
         let client_data: Vec<u8> = decode_config(&sign_resp.client_data[..], config).map_err(|_e| U2fError::InvalidClientData)?;
         let sign_data: Vec<u8> = decode_config(&sign_resp.signature_data[..], config).map_err(|_e| U2fError::InvalidSignatureData)?;
 
