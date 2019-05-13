@@ -3,7 +3,7 @@ use crate::messages::*;
 use crate::register::*;
 use crate::authorization::*;
 
-use base64::{encode, decode_config, Config, CharacterSet};
+use base64::{encode_config, decode_config, URL_SAFE};
 use chrono::prelude::*;
 use time::Duration;
 use crate::u2ferror::U2fError;
@@ -46,7 +46,7 @@ impl U2f {
 
         let challenge_bytes = generate_challenge(32)?; 
         let challenge = Challenge {
-            challenge : encode(&challenge_bytes),
+            challenge : encode_config(&challenge_bytes, URL_SAFE),
             timestamp : format!("{:?}", utc),
             app_id : self.app_id.clone()
         };
@@ -80,11 +80,9 @@ impl U2f {
         if expiration(challenge.timestamp) > Duration::seconds(300) {
             return Err(U2fError::ChallengeExpired);
         }
-    
-        let config = Config::new(CharacterSet::UrlSafe, true);
 
-        let registration_data: Vec<u8> = decode_config(&response.registration_data[..], config).unwrap();
-        let client_data: Vec<u8> = decode_config(&response.client_data[..], config).unwrap();
+        let registration_data: Vec<u8> = decode_config(&response.registration_data[..], URL_SAFE).unwrap();
+        let client_data: Vec<u8> = decode_config(&response.client_data[..], URL_SAFE).unwrap();
 
         parse_registration(challenge.app_id, client_data, registration_data)
     }
@@ -108,7 +106,7 @@ impl U2f {
 
         let signed_request = U2fSignRequest {
             app_id : self.app_id.clone(),
-            challenge: encode(challenge.challenge.as_bytes()),
+            challenge: encode_config(challenge.challenge.as_bytes(), URL_SAFE),
             registered_keys: keys
         };
 
@@ -124,9 +122,8 @@ impl U2f {
             return Err(U2fError::WrongKeyHandler);
         }
 
-        let config = Config::new(CharacterSet::UrlSafe, true);
-        let client_data: Vec<u8> = decode_config(&sign_resp.client_data[..], config).map_err(|_e| U2fError::InvalidClientData)?;
-        let sign_data: Vec<u8> = decode_config(&sign_resp.signature_data[..], config).map_err(|_e| U2fError::InvalidSignatureData)?;
+        let client_data: Vec<u8> = decode_config(&sign_resp.client_data[..], URL_SAFE).map_err(|_e| U2fError::InvalidClientData)?;
+        let sign_data: Vec<u8> = decode_config(&sign_resp.signature_data[..], URL_SAFE).map_err(|_e| U2fError::InvalidSignatureData)?;
 
         let public_key = reg.pub_key;
 
