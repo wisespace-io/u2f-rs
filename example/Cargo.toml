@@ -1,13 +1,13 @@
 [package]
 name = "u2f-app"
-version = "0.1.4"
+version = "0.1.6"
 authors = ["Flavio Oliveira <flavio@wisespace.io>"]
 edition = "2018"
 
 [dependencies]
 u2f = { path = "../" }
-serde = "1.0.11"
-serde_json = "1.0.2"
+serde = "^1.0"
+serde_json = "^1.0"
 lazy_static = "0.2"
 
 [dependencies.rocket]
