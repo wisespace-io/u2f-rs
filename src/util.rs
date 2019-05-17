@@ -2,7 +2,7 @@ use chrono::prelude::*;
 use time::Duration;
 use ring::rand::{SecureRandom, SystemRandom};
 use bytes::{Bytes};
-use base64::{encode_config, Config, CharacterSet};
+use base64::{encode_config, URL_SAFE_NO_PAD};
 use crate::u2ferror::U2fError;
 
 /// The `Result` type used in this crate.
@@ -57,9 +57,7 @@ pub fn asn_length(mem: Bytes) -> Result<usize> {
 }
 
 pub fn get_encoded(data: &[u8]) -> String {
-    let config = Config::new(CharacterSet::UrlSafe, true);
-
-    let encoded: String = encode_config(data, config);
+    let encoded: String = encode_config(data, URL_SAFE_NO_PAD);
 
     encoded.trim_end_matches('=').to_string()
 }
