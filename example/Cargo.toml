@@ -1,6 +1,6 @@
 [package]
 name = "u2f-app"
-version = "0.1.6"
+version = "0.2.0"
 authors = ["Flavio Oliveira <flavio@wisespace.io>"]
 edition = "2018"
 
