@@ -13,6 +13,7 @@ use std::convert::TryFrom;
 // use super::constants::*;
 use u2ferror::U2fError;
 use openssl::pkey::Public;
+use std::borrow::Borrow;
 
 // use super::proto::*;
 
@@ -51,6 +52,21 @@ impl TryFrom<&[u8]> for X509PublicKey {
 }
 
 impl X509PublicKey {
+    pub (crate) fn common_name(&self) -> Option<String> {
+        let cert = &self.pubk;
+
+        let subject = cert.subject_name();
+        let common = subject.entries_by_nid(openssl::nid::Nid::COMMONNAME)
+            .next()
+            .map(|b| b.data().as_slice());
+
+        if let Some(common) = common {
+            std::str::from_utf8(common).ok().map(|s| s.to_string())
+        } else {
+            None
+        }
+    }
+
     pub(crate) fn is_secp256r1(&self) -> Result<bool, U2fError> {
         // Can we get the public key?
         let pk = self

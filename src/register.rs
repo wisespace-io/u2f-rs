@@ -19,6 +19,7 @@ pub struct Registration {
 
     // AttestationCert can be null for Authenticate requests.
     pub attestation_cert: Option<Vec<u8>>,
+    pub device_name: Option<String>,
 }
 
 pub fn parse_registration(app_id: String, client_data: Vec<u8>, registration_data: Vec<u8>) -> Result<Registration> {
@@ -76,6 +77,7 @@ pub fn parse_registration(app_id: String, client_data: Vec<u8>, registration_dat
         key_handle: key_handle[..].to_vec(),
         pub_key: public_key[..].to_vec(), 
         attestation_cert: Some(attestation_certificate[..].to_vec()),
+        device_name: cerificate_public_key.common_name(),
     };
 
     Ok(registration)
