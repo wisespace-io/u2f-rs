@@ -26,6 +26,5 @@ serde = "^1.0"
 serde_json = "^1.0"
 serde_derive = "^1.0"
 byteorder = "1.3"
-ring = "0.14"
-webpki = "0.19"
-untrusted = "0.6"
+openssl = "0.10"
+
