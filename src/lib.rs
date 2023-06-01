@@ -3,7 +3,6 @@ extern crate serde_derive;
 extern crate serde;
 extern crate serde_json;
 
-extern crate time;
 extern crate bytes;
 extern crate byteorder;
 extern crate chrono;

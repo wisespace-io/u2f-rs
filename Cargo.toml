@@ -18,7 +18,6 @@ name = "u2f"
 path = "src/lib.rs"
 
 [dependencies]
-time = "0.1"
 bytes = "0.4"
 base64 = "0.11"
 chrono = "0.4"
