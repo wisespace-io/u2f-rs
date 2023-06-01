@@ -1,5 +1,5 @@
 use chrono::prelude::*;
-use time::Duration;
+use chrono::Duration;
 use openssl::rand;
 use bytes::{Bytes};
 use base64::{encode_config, URL_SAFE_NO_PAD};
